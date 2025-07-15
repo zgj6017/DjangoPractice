@@ -1,0 +1,236 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-gradient-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>柱状图
+                </h5>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="panelDropdown" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>设置</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i>导出</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- 修改图表容器，移除固定宽度和占位内容 -->
+            <div id="m1" style="height:400px;min-height:200px"></div>
+        </div>
+        <div class="card-footer bg-light">
+            <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>状态信息或更新时间
+            </small>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-gradient-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>饼状图
+                </h5>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="panelDropdown" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>设置</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i>导出</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- 修改图表容器，移除固定宽度和占位内容 -->
+            <div id="m2" style="height:400px;min-height:200px"></div>
+        </div>
+        <div class="card-footer bg-light">
+            <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>状态信息或更新时间
+            </small>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block css %}
+<style>
+    .card {
+        border-radius: 0.5rem;
+        border: none;
+        overflow: hidden;
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    }
+
+    .card-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+        background-color: #f8fafc;
+    }
+
+    .card-footer {
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+</style>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'js/echarts.js' %}"></script>
+<script type="text/javascript">
+    $(function() {
+        initBar();
+        iniPie();
+    });
+
+    function initBar() {
+        var myChart = echarts.init(document.getElementById('m1'));
+
+        // 显示加载动画
+        myChart.showLoading({
+            text: '数据加载中...',
+            color: '#4e73df',
+            textColor: '#000',
+            maskColor: 'rgba(255, 255, 255, 0.8)'
+        });
+
+        // 初始空配置
+        var option = {
+            title: {
+                text: '数据加载中...'
+            },
+            tooltip: {},
+            legend: {
+                data: []
+            },
+            xAxis: {
+                data: []
+            },
+            yAxis: {},
+            series: []
+        };
+        myChart.setOption(option);
+
+        $.ajax({
+            url: '/chart/bar/',
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                myChart.hideLoading();
+                if (res.status) {
+                    option.title.text = res.title || '数据图表';
+                    option.legend.data = res.data.legend || [];
+                    option.series = res.data.series_list || [];
+                    option.xAxis.data = res.data.x_axis || [];
+                    myChart.setOption(option);
+                } else {
+                    // 显示错误信息
+                    option.title.text = '数据加载失败';
+                    myChart.setOption(option);
+                    console.error(res.error || '未知错误');
+                }
+            },
+            error: function(xhr) {
+                myChart.hideLoading();
+                option.title.text = '请求数据失败';
+                myChart.setOption(option);
+                console.error('AJAX请求失败:', xhr.statusText);
+            }
+        });
+
+        // 响应式调整
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+    }
+
+    function iniPie() {
+    var myChart = echarts.init(document.getElementById('m2'));
+
+    // 显示加载动画
+    myChart.showLoading();
+
+    // 初始配置
+    var option = {
+        title: {
+            text: '网站流量来源',
+            subtext: '示例数据',
+            left: 'center'
+        },
+        tooltip: {
+            trigger: 'item'
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            data: [] // 添加空legend数据
+        },
+        series: [{
+            name: '访问来源',
+            type: 'pie',
+            radius: '50%',
+            data: [],
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }]
+    };
+
+    // 先设置初始空配置
+    myChart.setOption(option);
+
+    $.ajax({
+        url: '/chart/pie/',
+        type: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            myChart.hideLoading();
+            if (res.status) {
+                // 更新所有必要的配置项
+                option.title.text = res.title || '网站流量来源';
+                option.legend.data = res.legend || res.data.map(item => item.name);
+                option.series[0].data = res.data;
+
+                // 重新设置配置
+                myChart.setOption(option);
+            } else {
+                option.title.text = '数据加载失败';
+                myChart.setOption(option);
+                console.error(res.error || '未知错误');
+            }
+        },
+        error: function(xhr) {
+            myChart.hideLoading();
+            option.title.text = '请求数据失败';
+            myChart.setOption(option);
+            console.error('AJAX请求失败:', xhr.statusText);
+        }
+    });
+
+    // 响应式调整
+    window.addEventListener('resize', function() {
+        myChart.resize();
+    });
+}
+</script>
+{% endblock %}

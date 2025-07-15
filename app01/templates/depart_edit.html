@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<div>
+    <div class="container">
+        <form method='post' class="row g-3 needs-validation" novalidate>
+            {% csrf_token %}
+  <div class="col-md-4">
+    <label for="validationCustom01" class="form-label">标题</label>
+    <input type="text" class="form-control" id="validationCustom01" name="title" value="{{ row_object.title }}" required>
+    <div class="valid-feedback">
+      Looks good!
+    </div>
+  </div>
+
+  <div class="col-12">
+    <button class="btn btn-primary" type="submit">提 交</button>
+  </div>
+</form>
+    </div>
+</div>
+
+{% endblock %}

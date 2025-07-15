@@ -1,0 +1,238 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="fas fa-plus-circle me-2"></i>添加任务表单</h3>
+            </div>
+            <div class="card-body">
+                <form class="row g-3 needs-validation" id="formAdd" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">
+                            <i class="fas fa-tag me-1"></i>{{ field.label }}
+                            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        {{ field }}
+                        <div class="invalid-feedback">
+                            请填写{{ field.label }}
+                        </div>
+                        <span class="error-msg text-danger small"></span>
+                    </div>
+                    {% endfor %}
+
+                    <div class="col-12 mt-4">
+                        <button id="btnAdd" class="btn btn-primary px-4" type="button">
+                            <i class="fas fa-paper-plane me-2"></i>提交
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-undo me-2"></i>重置
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block css %}
+<style>
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .form-control, .form-select {
+        border-radius: 5px;
+        padding: 10px 15px;
+        border: 1px solid #ced4da;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .btn {
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
+
+    .error-msg {
+        font-size: 0.875em;
+    }
+
+    .is-invalid {
+        border-color: #dc3545;
+    }
+
+    .is-invalid:focus {
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        $(function() {
+            bindBtnAddEvent();
+
+            // 添加实时验证
+            $('#formAdd [required]').on('blur', function() {
+                validateField($(this));
+            });
+        });
+
+        function validateField($field) {
+            $field.removeClass('is-invalid');
+            $field.siblings('.error-msg').text('');
+
+            if ($field.val().trim() === '') {
+                $field.addClass('is-invalid');
+                $field.siblings('.error-msg').text("该字段不能为空");
+                return false;
+            }
+            return true;
+        }
+
+        function bindBtnAddEvent() {
+            $('#btnAdd').click(function() {
+                let isValid = true;
+                $('.error-msg').empty();
+                $('.is-invalid').removeClass('is-invalid');
+
+                // 验证所有必填字段
+                $('#formAdd [required]').each(function() {
+                    if (!validateField($(this))) {
+                        isValid = false;
+                    }
+                });
+
+                if (!isValid) {
+                    // 滚动到第一个错误处
+                    $('html, body').animate({
+                        scrollTop: $('.is-invalid').first().offset().top - 100
+                    }, 500);
+                    return;
+                }
+
+                {#// 显示加载状态#}
+                {#const $btn = $(this);#}
+                {#$btn.prop('disabled', true);#}
+                {#$btn.html('<i class="fas fa-spinner fa-spin me-2"></i>提交中...');#}
+
+                // AJAX 提交
+                $.ajax({
+                    url: '/task/add',
+                    type: "POST",
+                    data: $("#formAdd").serialize(),
+                    dataType: 'json',
+                    success: function(res) {
+                        if (res.status) {
+                            alert("添加成功")
+                            Swal.fire({
+                                icon: 'success',
+                                title: '操作成功',
+                                text: '添加任务成功',
+                                confirmButtonColor: '#0d6efd'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            // 显示后端返回的错误
+                            alert("添加失败")
+                            $.each(res.data, function(name, errors) {
+                                const $field = $('#id_' + name);
+                                $field.addClass('is-invalid');
+                                $field.siblings('.error-msg').text(errors[0]);
+                            });
+
+                            // 滚动到第一个错误处
+                            $('html, body').animate({
+                                scrollTop: $('.is-invalid').first().offset().top - 100
+                            }, 500);
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '请求失败',
+                            text: xhr.statusText || '服务器错误',
+                            confirmButtonColor: '#0d6efd'
+                        });
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                        $btn.html('<i class="fas fa-paper-plane me-2"></i>提交');
+                    }
+                });
+            });
+        }
+    </script>
+    <div class="container mt-4">
+        <h1 class="page-title">
+            <i class="bi bi-clipboard2-data"></i> 任务列表
+        </h1>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>标题</th>
+                    <th>级别</th>
+                    <th>负责人</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for obj in queryset %}
+                <tr>
+                    <td>{{ obj.id }}</td>
+                    <td>{{ obj.title }}</td>
+                    <td>{{ obj.get_level_display }}</td>
+                    <td>{{ obj.user.username }}</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm me-1" href="#">
+                            <i class="bi bi-pencil-square"></i> 编辑
+                        </a>
+                        <a class="btn btn-danger btn-sm" href="#">
+                            <i class="bi bi-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    <nav aria-label="Page navigation" class="mt-4">
+        <!-- 在表格后面添加分页导航 -->
+        {% if pagination_html %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-4">
+                {{ pagination_html|safe }}
+            </ul>
+        </nav>
+{% endif %}
+    </nav>
+    </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="bi bi-person-plus"></i> 添加用户
+            </h1>
+        </div>
+
+        {# 错误消息展示 #}
+        {% if errors %}
+        <div class="alert alert-danger alert-dismissible fade show">
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <h5><i class="bi bi-exclamation-triangle-fill"></i> 表单验证错误：</h5>
+            <ul class="mb-0">
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" class="row g-3 needs-validation" novalidate>
+            {% csrf_token %}
+
+            {# 姓名 #}
+            <div class="col-md-6">
+                <label for="name" class="form-label">姓名</label>
+                <input type="text" class="form-control" id="name" name="user"
+                       value="{{ form_data.user|default:'' }}" required>
+                <div class="invalid-feedback">请输入姓名</div>
+            </div>
+
+            {# 密码 #}
+            <div class="col-md-6">
+                <label for="password" class="form-label">密码</label>
+                <input type="password" class="form-control" id="password" name="pwd"
+                       value="{{ form_data.pwd|default:'' }}" required>
+                <div class="invalid-feedback">请输入密码</div>
+            </div>
+
+            {# 年龄 #}
+            <div class="col-md-4">
+                <label for="age" class="form-label">年龄</label>
+                <input type="number" class="form-control" id="age" name="age"
+                       value="{{ form_data.age|default:'' }}" min="18" max="60" required>
+                <div class="invalid-feedback">请输入有效年龄(18-60)</div>
+            </div>
+
+            {# 账户余额 #}
+            <div class="col-md-4">
+                <label for="account" class="form-label">账户余额</label>
+                <div class="input-group">
+                    <span class="input-group-text">¥</span>
+                    <input type="number" class="form-control" id="account" name="account"
+                           value="{{ form_data.account|default:'' }}" step="0.01" min="0" required>
+                </div>
+                <div class="invalid-feedback">请输入有效金额</div>
+            </div>
+
+            {# 入职时间 #}
+            <div class="col-md-4">
+                <label for="hire_date" class="form-label">入职时间</label>
+                <div class="input-group date">
+                    <input type="text" class="form-control datepicker" id="ctime" name="ctime"
+                           value="{{ form_data.ctime|default:'' }}" required>
+                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                </div>
+                <div class="invalid-feedback">请选择有效日期</div>
+            </div>
+
+            {# 性别 #}
+            <div class="col-md-6">
+                <label for="gender" class="form-label">性别</label>
+                <select class="form-select" id="gender" name="gender" required>
+                    <option value="" disabled {% if not form_data.gender %}selected{% endif %}>请选择性别</option>
+                    {% for value, display in gender_choices %}
+                        <option value="{{ value }}"
+                                {% if form_data.gender == value|stringformat:"s" %}selected{% endif %}>
+                            {{ display }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">请选择性别</div>
+            </div>
+
+            {# 部门 #}
+            <div class="col-md-6">
+                <label for="department" class="form-label">部门</label>
+                <select class="form-select" id="department" name="department" required>
+                    <option value="" disabled {% if not form_data.department %}selected{% endif %}>请选择部门</option>
+                    {% for dept in department_choices %}
+                        <option value="{{ dept.id }}"
+                                {% if form_data.department == dept.id|stringformat:"s" %}selected{% endif %}>
+                            {{ dept.title }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">请选择部门</div>
+            </div>
+
+            {# 按钮 #}
+            <div class="col-12">
+                <button class="btn btn-primary me-2" type="submit">
+                    <i class="bi bi-check-circle"></i> 提交
+                </button>
+                <a href="/user/list/" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> 返回列表
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+// 表单验证
+(function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})();
+
+// 日期选择器配置
+$(document).ready(function(){
+    $('#ctime').datepicker({
+        format: 'yyyy-mm-dd',
+        language: 'zh-CN',
+        autoclose: true,
+        todayHighlight: true,
+        endDate: '0d',  // 禁止选择今天之后的日期
+        clearBtn: true,
+        orientation: 'auto'
+    }).on('changeDate', function(e) {
+        // 确保前端验证触发
+        $(this).valid();
+    });
+});
+</script>
+{% endblock %}

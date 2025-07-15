@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #4285f4;
+            outline: none;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+
+        .remember-me input {
+            margin-right: 8px;
+        }
+
+        .forgot-password a {
+            color: #4285f4;
+            text-decoration: none;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-button:hover {
+            background-color: #3367d6;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .register-link a {
+            color: #4285f4;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h2>用户登录</h2>
+            <p>请输入您的账号信息</p>
+        </div>
+
+        <form action="#" method="post" novalidate>
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">用户名</label>
+                {{ form.username }}
+                <span style="color:red">{{ form.username.errors.0 }}</span>
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                {{ form.password }}
+                <span style="color:red">{{ form.password.errors.0 }}</span>
+            </div>
+            <div class="form-group">
+    <label for="id_code">图片验证码</label>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        {{ form.code }}
+        <img id="image_code"
+             src="/image/code/"
+             style="width: 125px; height: 38px; cursor: pointer; border: 1px solid #ddd; border-radius: 4px;"
+             title="点击刷新验证码"
+             onclick="this.src='/image/code/?t='+Date.now()">
+    </div>
+    <span style="color:red">{{ form.code.errors.0 }}</span>
+</div>
+
+            <div class="remember-forgot">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">记住我</label>
+                </div>
+                <div class="forgot-password">
+                    <a href="#">忘记密码?</a>
+                </div>
+            </div>
+
+            <button type="submit" class="login-button">登录</button>
+
+            <div class="register-link">
+                <p>还没有账号? <a href="#">立即注册</a></p>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

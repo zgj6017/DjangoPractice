@@ -83,14 +83,16 @@ DATABASES = {
     }
 }
 
+# Example MySQL configuration using environment variables.
+# Uncomment and adjust as needed for production use.
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'staff',
-#         'USER': 'root',
-#         'PASSWORD': 'ZGJ200511010133',
-#         'HOST': '127.0.0.1',
-#         'PORT': 3306,
+#         'NAME': os.getenv('MYSQL_DB_NAME', 'your_database_name'),
+#         'USER': os.getenv('MYSQL_DB_USER', 'your_username'),
+#         'PASSWORD': os.getenv('MYSQL_DB_PASSWORD', 'your_password'),
+#         'HOST': os.getenv('MYSQL_DB_HOST', '127.0.0.1'),
+#         'PORT': int(os.getenv('MYSQL_DB_PORT', 3306)),
 #     }
 # }
 

@@ -76,23 +76,25 @@ WSGI_APPLICATION = 'DjangoProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'staff',
-        'USER': 'root',
-        'PASSWORD': 'ZGJ200511010133',
-        'HOST': '127.0.0.1',
-        'PORT': 3306,
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# Example MySQL configuration using environment variables.
+# Uncomment and adjust as needed for production use.
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.getenv('MYSQL_DB_NAME', 'your_database_name'),
+#         'USER': os.getenv('MYSQL_DB_USER', 'your_username'),
+#         'PASSWORD': os.getenv('MYSQL_DB_PASSWORD', 'your_password'),
+#         'HOST': os.getenv('MYSQL_DB_HOST', '127.0.0.1'),
+#         'PORT': int(os.getenv('MYSQL_DB_PORT', 3306)),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
